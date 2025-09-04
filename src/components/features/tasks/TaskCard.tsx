@@ -1,0 +1,91 @@
+import React from 'react';
+import { Check, Edit2, Trash2, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Task } from '../../../types';
+import { formatDistanceToNow } from 'date-fns';
+
+interface TaskCardProps {
+  task: Task;
+  onToggleStatus: (taskId: string) => void;
+  onEdit: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
+}
+
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  onToggleStatus,
+  onEdit,
+  onDelete
+}) => {
+  return (
+    <Card className={`task-card ${task.completed ? 'opacity-75' : ''}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 flex-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`mt-1 h-6 w-6 p-0 rounded-full border-2 ${
+                task.completed
+                  ? 'bg-success text-success-foreground border-success'
+                  : 'border-muted-foreground hover:border-primary'
+              }`}
+              onClick={() => onToggleStatus(task.id)}
+            >
+              {task.completed && <Check className="h-3 w-3" />}
+            </Button>
+            
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-medium text-sm ${
+                task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+              }`}>
+                {task.title}
+              </h3>
+              
+              {task.description && (
+                <p className={`text-xs mt-1 ${
+                  task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'
+                }`}>
+                  {task.description}
+                </p>
+              )}
+              
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant={task.completed ? 'secondary' : 'outline'} className="text-xs">
+                  {task.completed ? 'Completed' : 'Pending'}
+                </Badge>
+                
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  {formatDistanceToNow(task.createdAt, { addSuffix: true })}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+              onClick={() => onEdit(task.id)}
+            >
+              <Edit2 className="h-3 w-3" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => onDelete(task.id)}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
