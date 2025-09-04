@@ -1,6 +1,10 @@
 import { makeAutoObservable } from 'mobx';
 import { AuthService } from '../../services/AuthService';
 import { User, LoginCredentials, RegisterCredentials, AuthState } from '../../types';
+import Api from '@/services/ApiRoutes';
+import { ApiResponse } from '@/types/api';
+import { POST } from '../service/http-request';
+import Session from '../service/session';
 
 export class AuthController {
   user: User | null = null;
@@ -33,13 +37,22 @@ export class AuthController {
     try {
       this.isLoading = true;
       this.error = null;
-      
-      const user = await AuthService.login(credentials);
-      
-      this.user = user;
-      this.isLoggedIn = true;
-      
-      return true;
+
+      const url = `${Api.BASE_URL}${Api.AUTH_SIGN_IN}`
+      const res = await POST<ApiResponse<any>>(url, credentials)
+      const data = res?.data ?? {}
+
+      if (data?.status?.code == 200) {
+        Session.setToken(data.data?.token)
+
+        this.user = data.data?.user;
+        this.isLoggedIn = true;
+
+        return true
+      }
+
+      this.error = data?.status?.message ?? ''
+      return false;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Login failed';
       return false;
@@ -53,16 +66,20 @@ export class AuthController {
       this.isLoading = true;
       this.error = null;
 
-      // Validate passwords match
-      if (credentials.password !== credentials.confirmPassword) {
-        throw new Error('Passwords do not match');
+      const url = `${Api.BASE_URL}${Api.AUTH_REGISTER}`
+      const res = await POST<ApiResponse<any>>(url, credentials)
+      const data = res?.data ?? {}
+
+      if (data?.status?.code == 200) {
+        Session.setToken(data.data?.token)
+
+        this.user = data.data?.user;
+        this.isLoggedIn = true;
+
+        return true
       }
 
-      const user = await AuthService.register(credentials);
-      
-      this.user = user;
-      this.isLoggedIn = true;
-      
+      this.error = data?.status?.message ?? ''
       return true;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Registration failed';

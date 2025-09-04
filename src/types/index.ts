@@ -1,13 +1,13 @@
 // Global types for the To-Do application
 
-export interface User {
+export type User = {
   id: string;
   email: string;
   name: string;
   createdAt: Date;
 }
 
-export interface Task {
+export type Task = {
   id: string;
   title: string;
   description: string;
@@ -17,19 +17,19 @@ export interface Task {
   userId: string;
 }
 
-export interface LoginCredentials {
+export type LoginCredentials = {
   email: string;
   password: string;
 }
 
-export interface RegisterCredentials {
+export type RegisterCredentials = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
-export interface MotivationalQuote {
+export type MotivationalQuote = {
   id: number;
   text: string;
   author: string;
@@ -41,19 +41,19 @@ export enum TaskStatus {
   COMPLETED = 'completed'
 }
 
-export interface AuthState {
+export type AuthState = {
   user: User | null;
   isLoggedIn: boolean;
   isLoading: boolean;
 }
 
-export interface TaskState {
+export type TaskState = {
   tasks: Task[];
   filter: TaskStatus;
   isLoading: boolean;
 }
 
-export interface QuoteState {
+export type QuoteState = {
   currentQuote: MotivationalQuote | null;
   isLoading: boolean;
 }
