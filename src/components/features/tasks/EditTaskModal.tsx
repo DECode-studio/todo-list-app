@@ -5,30 +5,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DashboardPageController } from '@/controllers/page/DashboardPageController';
+import { toast } from '@/hooks/use-toast';
 
 interface EditTaskModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  onTitleChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onSubmit: () => Promise<void>;
-  isSubmitting: boolean;
-  isValid: boolean;
+  controller: DashboardPageController
 }
 
 export const EditTaskModal: React.FC<EditTaskModalProps> = ({
-  isOpen,
-  onOpenChange,
-  title,
-  description,
-  onTitleChange,
-  onDescriptionChange,
-  onSubmit,
-  isSubmitting,
-  isValid
+  controller
 }) => {
+  const isValid = controller.isEditTaskFormValid
+  const isSubmitting = controller.isTasksLoading
+
+  const onSubmit = async () => {
+    const success = await controller.handleUpdateTask();
+    if (success) {
+      toast({ title: "Success", description: "Task updated successfully!" });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
@@ -37,7 +33,10 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={controller.isEditModalOpen}
+      onOpenChange={() => controller.closeEditTaskModal()}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -48,42 +47,42 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
             Update your task details
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-task-title">Title *</Label>
             <Input
               id="edit-task-title"
               placeholder="Enter task title..."
-              value={title}
-              onChange={(e) => onTitleChange(e.target.value)}
+              value={controller.editTaskForm.title}
+              onChange={(e) => controller.updateEditTaskField('title', e.target.value)}
               required
               autoFocus
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="edit-task-description">Description</Label>
             <Textarea
               id="edit-task-description"
               placeholder="Enter task description (optional)..."
-              value={description}
-              onChange={(e) => onDescriptionChange(e.target.value)}
+              value={controller.editTaskForm.description}
+              onChange={(e) => controller.updateEditTaskField('description', e.target.value)}
               rows={3}
               className="resize-none"
             />
           </div>
-          
+
           <div className="flex justify-end space-x-2 pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => controller.closeEditTaskModal()}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            
+
             <Button
               type="submit"
               disabled={!isValid || isSubmitting}

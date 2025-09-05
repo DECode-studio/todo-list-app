@@ -1,6 +1,5 @@
 import { MotivationalQuote } from '../types';
 
-// Fallback quotes in case API fails
 const FALLBACK_QUOTES: MotivationalQuote[] = [
   {
     id: 1,
@@ -35,10 +34,9 @@ export class QuoteService {
 
   static async getDailyQuote(): Promise<MotivationalQuote> {
     try {
-      // Check if we have a cached quote for today
       const cachedDate = localStorage.getItem(this.CACHE_DATE_KEY);
       const today = new Date().toDateString();
-      
+
       if (cachedDate === today) {
         const cachedQuote = localStorage.getItem(this.CACHE_KEY);
         if (cachedQuote) {
@@ -46,13 +44,11 @@ export class QuoteService {
         }
       }
 
-      // Try to fetch from API
       const quote = await this.fetchFromAPI();
-      
-      // Cache the quote for today
+
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(quote));
       localStorage.setItem(this.CACHE_DATE_KEY, today);
-      
+
       return quote;
     } catch (error) {
       console.warn('Failed to fetch quote from API, using fallback:', error);
@@ -61,15 +57,14 @@ export class QuoteService {
   }
 
   private static async fetchFromAPI(): Promise<MotivationalQuote> {
-    // Using quotable.io API for motivational quotes
     const response = await fetch('https://api.quotable.io/random?tags=motivational|inspirational|success');
-    
+
     if (!response.ok) {
       throw new Error('API request failed');
     }
-    
+
     const data = await response.json();
-    
+
     return {
       id: Date.now(),
       text: data.content,
@@ -78,7 +73,6 @@ export class QuoteService {
   }
 
   private static getFallbackQuote(): MotivationalQuote {
-    // Return a random fallback quote
     const randomIndex = Math.floor(Math.random() * FALLBACK_QUOTES.length);
     return FALLBACK_QUOTES[randomIndex];
   }

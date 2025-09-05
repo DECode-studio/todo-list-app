@@ -1,6 +1,7 @@
+import Navigate from '@/controllers/service/navigator';
 import { User, LoginCredentials, RegisterCredentials } from '../types';
-
-// Dummy users data for development
+import Path from './PathRoutes';
+import Session from '@/controllers/service/session';
 const DUMMY_USERS = [
   {
     id: '1',
@@ -47,14 +48,12 @@ export class AuthService {
   static register(credentials: RegisterCredentials): Promise<User> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // Check if user already exists
         const existingUser = DUMMY_USERS.find(u => u.email === credentials.email);
         if (existingUser) {
           reject(new Error('User already exists with this email'));
           return;
         }
 
-        // Create new user
         const newUser = {
           id: Date.now().toString(),
           email: credentials.email,
@@ -62,7 +61,6 @@ export class AuthService {
           createdAt: new Date()
         };
 
-        // In a real app, this would be stored in a database
         DUMMY_USERS.push({
           ...newUser,
           password: credentials.password
@@ -75,7 +73,8 @@ export class AuthService {
   }
 
   static logout(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
+    Session.removeToken()
+    Navigate.Replace(Path.SIGN_IN_ROUTE)
   }
 
   static getCurrentUser(): User | null {

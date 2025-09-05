@@ -1,6 +1,9 @@
 import { makeAutoObservable } from 'mobx';
 import { TaskService } from '../../services/TaskService';
 import { Task, TaskStatus, TaskState } from '../../types';
+import { ApiResponse } from '@/types/api';
+import Api from '@/services/ApiRoutes';
+import { GET, POST } from '../service/http-request';
 
 export class TaskController {
   tasks: Task[] = [];
@@ -23,9 +26,9 @@ export class TaskController {
   get filteredTasks(): Task[] {
     switch (this.filter) {
       case TaskStatus.PENDING:
-        return this.tasks.filter(task => !task.completed);
+        return this.tasks.filter(task => !(task.status == TaskStatus.COMPLETED));
       case TaskStatus.COMPLETED:
-        return this.tasks.filter(task => task.completed);
+        return this.tasks.filter(task => (task.status == TaskStatus.COMPLETED));
       default:
         return this.tasks;
     }
@@ -33,9 +36,9 @@ export class TaskController {
 
   get taskStats() {
     const total = this.tasks.length;
-    const completed = this.tasks.filter(task => task.completed).length;
+    const completed = this.tasks.filter(task => (task.status == TaskStatus.COMPLETED)).length;
     const pending = total - completed;
-    
+
     return {
       total,
       completed,
@@ -44,13 +47,23 @@ export class TaskController {
     };
   }
 
-  async loadTasks(userId: string): Promise<void> {
+  async loadTasks(): Promise<void> {
     try {
       this.isLoading = true;
       this.error = null;
-      
-      const tasks = await TaskService.getUserTasks(userId);
-      this.tasks = tasks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      const url = `${Api.BASE_URL}${Api.TASK_GET}`
+      const res = await GET<ApiResponse<Task[]>>(url)
+      const data = res?.data ?? {}
+
+      if (data?.status?.code == 200) {
+        const tasks = data.data ?? []
+        this.tasks = tasks.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+
+      this.error = data?.status?.message ?? ''
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to load tasks';
     } finally {
@@ -58,18 +71,23 @@ export class TaskController {
     }
   }
 
-  async createTask(taskData: { title: string; description: string; userId: string }): Promise<boolean> {
+  async createTask(
+    taskData: { title: string; description: string; }
+  ): Promise<boolean> {
     try {
       this.isLoading = true;
       this.error = null;
-      
-      const newTask = await TaskService.createTask({
-        ...taskData,
-        completed: false
-      });
-      
-      this.tasks.unshift(newTask);
-      return true;
+
+      const url = `${Api.BASE_URL}${Api.TASK_ADD}`
+      const res = await POST<ApiResponse<any>>(url, taskData)
+      const data = res?.data ?? {}
+
+      if (data?.status?.code == 200) {
+        return true
+      }
+
+      this.error = data?.status?.message ?? ''
+      return false
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to create task';
       return false;
@@ -82,14 +100,14 @@ export class TaskController {
     try {
       this.isLoading = true;
       this.error = null;
-      
+
       const updatedTask = await TaskService.updateTask(taskId, updates);
-      
+
       const index = this.tasks.findIndex(task => task.id === taskId);
       if (index !== -1) {
         this.tasks[index] = updatedTask;
       }
-      
+
       return true;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to update task';
@@ -102,7 +120,7 @@ export class TaskController {
   async toggleTaskStatus(taskId: string): Promise<void> {
     try {
       const updatedTask = await TaskService.toggleTaskStatus(taskId);
-      
+
       const index = this.tasks.findIndex(task => task.id === taskId);
       if (index !== -1) {
         this.tasks[index] = updatedTask;
@@ -116,9 +134,9 @@ export class TaskController {
     try {
       this.isLoading = true;
       this.error = null;
-      
+
       await TaskService.deleteTask(taskId);
-      
+
       this.tasks = this.tasks.filter(task => task.id !== taskId);
       return true;
     } catch (error) {
@@ -138,5 +156,4 @@ export class TaskController {
   }
 }
 
-// Create a singleton instance
 export const taskController = new TaskController();

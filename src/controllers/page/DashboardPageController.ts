@@ -8,7 +8,7 @@ export class DashboardPageController {
   isCreateTaskModalOpen: boolean = false;
   selectedTaskId: string | null = null;
   isEditModalOpen: boolean = false;
-  
+
   newTaskForm = {
     title: '',
     description: ''
@@ -16,32 +16,28 @@ export class DashboardPageController {
 
   editTaskForm = {
     title: '',
-    description: ''
+    description: '',
+    status: TaskStatus.PENDING
   };
-  
+
   constructor() {
     makeAutoObservable(this);
   }
 
   async initialize(): Promise<void> {
-    const user = authController.user;
-    if (user) {
-      // Load user tasks and daily quote in parallel
-      await Promise.all([
-        taskController.loadTasks(user.id),
-        quoteController.loadDailyQuote()
-      ]);
+    await Promise.all([
+      taskController.loadTasks(),
+      quoteController.loadDailyQuote()
+    ]);
+  }
+
+  configCreateTaskModal(): void {
+    try {
+      this.isCreateTaskModalOpen = !(this.isCreateTaskModalOpen ?? false);
+    } catch (error) {
+      console.log(error);
+      this.isCreateTaskModalOpen = false
     }
-  }
-
-  // Create Task Modal Management
-  openCreateTaskModal(): void {
-    this.isCreateTaskModalOpen = true;
-    this.newTaskForm = { title: '', description: '' };
-  }
-
-  closeCreateTaskModal(): void {
-    this.isCreateTaskModalOpen = false;
     this.newTaskForm = { title: '', description: '' };
   }
 
@@ -50,32 +46,27 @@ export class DashboardPageController {
   }
 
   async handleCreateTask(): Promise<boolean> {
-    const user = authController.user;
-    if (!user || !this.newTaskForm.title.trim()) {
-      return false;
-    }
 
     const success = await taskController.createTask({
       title: this.newTaskForm.title.trim(),
       description: this.newTaskForm.description.trim(),
-      userId: user.id
     });
 
     if (success) {
-      this.closeCreateTaskModal();
+      this.configCreateTaskModal();
     }
 
     return success;
   }
 
-  // Edit Task Modal Management
   openEditTaskModal(taskId: string): void {
     const task = taskController.tasks.find(t => t.id === taskId);
     if (task) {
       this.selectedTaskId = taskId;
       this.editTaskForm = {
         title: task.title,
-        description: task.description
+        description: task.description,
+        status: task.status,
       };
       this.isEditModalOpen = true;
     }
@@ -84,7 +75,7 @@ export class DashboardPageController {
   closeEditTaskModal(): void {
     this.isEditModalOpen = false;
     this.selectedTaskId = null;
-    this.editTaskForm = { title: '', description: '' };
+    this.editTaskForm = { title: '', description: '', status: TaskStatus.PENDING };
   }
 
   updateEditTaskField(field: 'title' | 'description', value: string): void {
@@ -108,7 +99,6 @@ export class DashboardPageController {
     return success;
   }
 
-  // Task Actions
   async toggleTaskStatus(taskId: string): Promise<void> {
     await taskController.toggleTaskStatus(taskId);
   }
@@ -117,22 +107,18 @@ export class DashboardPageController {
     await taskController.deleteTask(taskId);
   }
 
-  // Filter Management
   setTaskFilter(filter: TaskStatus): void {
     taskController.setFilter(filter);
   }
 
-  // Quote Actions
   async refreshQuote(): Promise<void> {
     await quoteController.refreshQuote();
   }
 
-  // Logout
   handleLogout(): void {
     authController.logout();
   }
 
-  // Getters
   get user() {
     return authController.user;
   }

@@ -41,7 +41,6 @@ export default class Session {
         localStorage.removeItem('walletName')
     }
 
-    // latest tab on profile
     static setLatestTab(tab: string) {
         localStorage.setItem("__latestTab__", tab);
     }

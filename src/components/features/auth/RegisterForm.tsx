@@ -28,7 +28,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
           Join us to start managing your tasks effectively
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {controller.error && (
@@ -36,7 +36,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
               <AlertDescription>{controller.error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -48,7 +48,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -60,7 +60,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -78,7 +78,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={controller.togglePasswordVisibility}
+                onClick={() => controller.togglePasswordVisibility()}
               >
                 {controller.showPassword ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -88,7 +88,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
               </Button>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
@@ -106,7 +106,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={controller.toggleConfirmPasswordVisibility}
+                onClick={() => controller.toggleConfirmPasswordVisibility()}
               >
                 {controller.showConfirmPassword ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -119,7 +119,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
               <p className="text-sm text-destructive">Passwords do not match</p>
             )}
           </div>
-          
+
           <Button
             type="submit"
             className="w-full"
@@ -138,14 +138,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = observer(({ onSwitchToL
             )}
           </Button>
         </form>
-        
+
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Button
               variant="link"
               className="p-0 h-auto font-medium text-primary hover:text-primary/80"
-              onClick={onSwitchToLogin}
+              onClick={() => onSwitchToLogin()}
             >
               Sign in here
             </Button>

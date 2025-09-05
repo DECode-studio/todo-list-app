@@ -28,7 +28,7 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
           Sign in to your account to continue
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {controller.error && (
@@ -36,7 +36,7 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
               <AlertDescription>{controller.error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -48,7 +48,7 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -65,7 +65,7 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={controller.togglePasswordVisibility}
+                onClick={() => controller.togglePasswordVisibility()}
               >
                 {controller.showPassword ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -75,7 +75,7 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
               </Button>
             </div>
           </div>
-          
+
           <Button
             type="submit"
             className="w-full"
@@ -94,14 +94,14 @@ export const LoginForm: React.FC<LoginFormProps> = observer(({ onSwitchToRegiste
             )}
           </Button>
         </form>
-        
+
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{' '}
             <Button
               variant="link"
               className="p-0 h-auto font-medium text-primary hover:text-primary/80"
-              onClick={onSwitchToRegister}
+              onClick={() => onSwitchToRegister()}
             >
               Create one here
             </Button>

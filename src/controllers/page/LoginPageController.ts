@@ -1,6 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import { authController } from '../data/AuthController';
 import { LoginCredentials } from '../../types';
+import Navigate from '../service/navigator';
+import Path from '@/services/PathRoutes';
 
 export class LoginPageController {
   formData: LoginCredentials = {
@@ -23,7 +25,6 @@ export class LoginPageController {
   }
 
   async handleSubmit(): Promise<boolean> {
-    // Basic validation
     if (!this.formData.email || !this.formData.password) {
       return false;
     }
@@ -32,6 +33,7 @@ export class LoginPageController {
     
     if (success) {
       this.resetForm();
+      Navigate.Replace(Path.DASHBOARD_ROUTE)
     }
     
     return success;

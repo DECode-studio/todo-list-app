@@ -30,7 +30,6 @@ export class RegisterPageController {
   }
 
   async handleSubmit(): Promise<boolean> {
-    // Validation is handled in the AuthController
     const success = await authController.register(this.formData);
     
     if (success) {

@@ -5,20 +5,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Task } from '../../../types';
 import { formatDistanceToNow } from 'date-fns';
+import { DashboardPageController } from '@/controllers/page/DashboardPageController';
+import { toast } from '@/hooks/use-toast';
 
 interface TaskCardProps {
+  controller: DashboardPageController
   task: Task;
-  onToggleStatus: (taskId: string) => void;
-  onEdit: (taskId: string) => void;
-  onDelete: (taskId: string) => void;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
+  controller,
   task,
-  onToggleStatus,
-  onEdit,
-  onDelete
 }) => {
+
+  const handleDeleteTask = async (taskId: string) => {
+    await controller.deleteTask(taskId);
+    toast({ title: "Success", description: "Task deleted successfully!" });
+  };
+
   return (
     <Card className={`task-card ${task.completed ? 'opacity-75' : ''}`}>
       <CardContent className="p-4">
@@ -27,36 +31,33 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className={`mt-1 h-6 w-6 p-0 rounded-full border-2 ${
-                task.completed
+              className={`mt-1 h-6 w-6 p-0 rounded-full border-2 ${task.completed
                   ? 'bg-success text-success-foreground border-success'
                   : 'border-muted-foreground hover:border-primary'
-              }`}
-              onClick={() => onToggleStatus(task.id)}
+                }`}
+              onClick={() => controller.toggleTaskStatus(task.id)}
             >
               {task.completed && <Check className="h-3 w-3" />}
             </Button>
-            
+
             <div className="flex-1 min-w-0">
-              <h3 className={`font-medium text-sm ${
-                task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
-              }`}>
+              <h3 className={`font-medium text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+                }`}>
                 {task.title}
               </h3>
-              
+
               {task.description && (
-                <p className={`text-xs mt-1 ${
-                  task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'
-                }`}>
+                <p className={`text-xs mt-1 ${task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'
+                  }`}>
                   {task.description}
                 </p>
               )}
-              
+
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={task.completed ? 'secondary' : 'outline'} className="text-xs">
                   {task.completed ? 'Completed' : 'Pending'}
                 </Badge>
-                
+
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   {formatDistanceToNow(task.createdAt, { addSuffix: true })}
@@ -64,22 +65,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-              onClick={() => onEdit(task.id)}
+              onClick={() => controller.openEditTaskModal(task.id)}
             >
               <Edit2 className="h-3 w-3" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => onDelete(task.id)}
+              onClick={() => handleDeleteTask(task.id)}
             >
               <Trash2 className="h-3 w-3" />
             </Button>

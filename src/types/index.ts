@@ -1,5 +1,3 @@
-// Global types for the To-Do application
-
 export type User = {
   id: string;
   email: string;
@@ -11,7 +9,7 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  completed: boolean;
+  status: TaskStatus;
   createdAt: Date;
   updatedAt: Date;
   userId: string;

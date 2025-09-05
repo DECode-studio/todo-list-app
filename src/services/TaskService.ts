@@ -1,6 +1,5 @@
 import { Task } from '../types';
 
-// Dummy tasks data for development
 const DUMMY_TASKS: Task[] = [
   {
     id: '1',
@@ -12,7 +11,7 @@ const DUMMY_TASKS: Task[] = [
     userId: '1'
   },
   {
-    id: '2', 
+    id: '2',
     title: 'Review code changes',
     description: 'Review and approve pending pull requests',
     completed: true,
@@ -33,7 +32,7 @@ const DUMMY_TASKS: Task[] = [
 
 export class TaskService {
   private static readonly STORAGE_KEY = 'todo_tasks';
-  
+
   private static getTasks(): Task[] {
     try {
       const tasksStr = localStorage.getItem(this.STORAGE_KEY);
@@ -45,7 +44,7 @@ export class TaskService {
           updatedAt: new Date(task.updatedAt)
         }));
       }
-      // Initialize with dummy data if none exists
+
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DUMMY_TASKS));
       return DUMMY_TASKS;
     } catch {
@@ -80,7 +79,7 @@ export class TaskService {
         const tasks = this.getTasks();
         tasks.push(newTask);
         this.saveTasks(tasks);
-        
+
         resolve(newTask);
       }, 300);
     });
@@ -91,7 +90,7 @@ export class TaskService {
       setTimeout(() => {
         const tasks = this.getTasks();
         const taskIndex = tasks.findIndex(task => task.id === taskId);
-        
+
         if (taskIndex === -1) {
           reject(new Error('Task not found'));
           return;
@@ -105,7 +104,7 @@ export class TaskService {
 
         tasks[taskIndex] = updatedTask;
         this.saveTasks(tasks);
-        
+
         resolve(updatedTask);
       }, 300);
     });
@@ -116,7 +115,7 @@ export class TaskService {
       setTimeout(() => {
         const tasks = this.getTasks();
         const taskIndex = tasks.findIndex(task => task.id === taskId);
-        
+
         if (taskIndex === -1) {
           reject(new Error('Task not found'));
           return;
@@ -124,7 +123,7 @@ export class TaskService {
 
         tasks.splice(taskIndex, 1);
         this.saveTasks(tasks);
-        
+
         resolve();
       }, 300);
     });
@@ -135,7 +134,7 @@ export class TaskService {
       setTimeout(() => {
         const tasks = this.getTasks();
         const task = tasks.find(t => t.id === taskId);
-        
+
         if (!task) {
           reject(new Error('Task not found'));
           return;
@@ -150,7 +149,7 @@ export class TaskService {
         const taskIndex = tasks.findIndex(t => t.id === taskId);
         tasks[taskIndex] = updatedTask;
         this.saveTasks(tasks);
-        
+
         resolve(updatedTask);
       }, 300);
     });
