@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import { authController } from '../data/AuthController';
 import { taskController } from '../data/TaskController';
 import { quoteController } from '../data/QuoteController';
-import { TaskStatus } from '../../types';
+import { Task, TaskStatus } from '../../types';
 
 export class DashboardPageController {
   isCreateTaskModalOpen: boolean = false;
@@ -53,7 +53,8 @@ export class DashboardPageController {
     });
 
     if (success) {
-      this.configCreateTaskModal();
+      taskController.loadTasks()
+      this.configCreateTaskModal()
     }
 
     return success;
@@ -66,7 +67,7 @@ export class DashboardPageController {
       this.editTaskForm = {
         title: task.title,
         description: task.description,
-        status: task.status,
+        status: task.status
       };
       this.isEditModalOpen = true;
     }
@@ -87,24 +88,28 @@ export class DashboardPageController {
       return false;
     }
 
-    const success = await taskController.updateTask(this.selectedTaskId, {
-      title: this.editTaskForm.title.trim(),
-      description: this.editTaskForm.description.trim()
-    });
+    const success = await taskController.updateTask(
+      this.selectedTaskId, this.editTaskForm
+    );
 
     if (success) {
+      taskController.loadTasks()
       this.closeEditTaskModal();
     }
 
     return success;
   }
 
-  async toggleTaskStatus(taskId: string): Promise<void> {
-    await taskController.toggleTaskStatus(taskId);
+  async toggleTaskStatus(task: Task): Promise<void> {
+    await taskController.toggleTaskStatus(task);
   }
 
   async deleteTask(taskId: string): Promise<void> {
-    await taskController.deleteTask(taskId);
+    const success = await taskController.deleteTask(taskId);
+
+    if (success) {
+      taskController.loadTasks()
+    }
   }
 
   setTaskFilter(filter: TaskStatus): void {

@@ -3,7 +3,7 @@ import { TaskService } from '../../services/TaskService';
 import { Task, TaskStatus, TaskState } from '../../types';
 import { ApiResponse } from '@/types/api';
 import Api from '@/services/ApiRoutes';
-import { GET, POST } from '../service/http-request';
+import { DELETE, GET, PATCH, POST } from '../service/http-request';
 
 export class TaskController {
   tasks: Task[] = [];
@@ -96,19 +96,29 @@ export class TaskController {
     }
   }
 
-  async updateTask(taskId: string, updates: { title?: string; description?: string }): Promise<boolean> {
+  async updateTask(
+    taskId: string,
+    updates: { title?: string; description?: string, status?: TaskStatus }
+  ): Promise<boolean> {
     try {
       this.isLoading = true;
       this.error = null;
 
-      const updatedTask = await TaskService.updateTask(taskId, updates);
+      const url = `${Api.BASE_URL}${Api.TASK_EDIT}?id=${taskId}`
+      const res = await PATCH<ApiResponse<Task>>(url, updates)
+      const data = res?.data ?? {}
 
-      const index = this.tasks.findIndex(task => task.id === taskId);
-      if (index !== -1) {
-        this.tasks[index] = updatedTask;
+      if (data?.status?.code == 200) {
+        const index = this.tasks.findIndex(task => task.id === taskId);
+        if (index !== -1) {
+          this.tasks[index] = data.data;
+        }
+
+        return true;
       }
 
-      return true;
+      this.error = data?.status?.message ?? ''
+      return false;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to update task';
       return false;
@@ -117,13 +127,31 @@ export class TaskController {
     }
   }
 
-  async toggleTaskStatus(taskId: string): Promise<void> {
+  async toggleTaskStatus(task: Task): Promise<void> {
     try {
-      const updatedTask = await TaskService.toggleTaskStatus(taskId);
+      if (task.status == TaskStatus.COMPLETED) {
+        task.status = TaskStatus.PENDING
+      } else if (task.status == TaskStatus.PENDING) {
+        task.status = TaskStatus.COMPLETED
+      }
 
-      const index = this.tasks.findIndex(task => task.id === taskId);
+      const req = {
+        title: task.title,
+        description: task.description,
+        status: task.status
+      }
+
+      const url = `${Api.BASE_URL}${Api.TASK_EDIT}?id=${task.id}`
+      const res = await PATCH<ApiResponse<Task>>(url, req)
+      const data = res?.data ?? {}
+
+      if (data?.status?.code != 200) {
+        this.error = data?.status?.message ?? ''
+      }
+
+      const index = this.tasks.findIndex(task => task.id === data.data?.id);
       if (index !== -1) {
-        this.tasks[index] = updatedTask;
+        this.tasks[index] = data.data;
       }
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to toggle task status';
@@ -135,10 +163,17 @@ export class TaskController {
       this.isLoading = true;
       this.error = null;
 
-      await TaskService.deleteTask(taskId);
+      const url = `${Api.BASE_URL}${Api.TASK_DELETE}?id=${taskId}`
+      const res = await DELETE<ApiResponse<Task>>(url)
+      const data = res?.data ?? {}
 
-      this.tasks = this.tasks.filter(task => task.id !== taskId);
-      return true;
+      if (data?.status?.code == 200) {
+        this.tasks = this.tasks.filter(task => task.id !== taskId);
+        return true;
+      }
+
+      this.error = data?.status?.message ?? ''
+      return false
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Failed to delete task';
       return false;

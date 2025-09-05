@@ -34,9 +34,9 @@ export type MotivationalQuote = {
 }
 
 export enum TaskStatus {
-  ALL = 'all',
-  PENDING = 'pending',
-  COMPLETED = 'completed'
+  ALL = 'ALL',
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED'
 }
 
 export type AuthState = {

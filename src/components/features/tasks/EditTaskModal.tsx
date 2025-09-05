@@ -7,12 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DashboardPageController } from '@/controllers/page/DashboardPageController';
 import { toast } from '@/hooks/use-toast';
+import { observer } from 'mobx-react-lite';
 
 interface EditTaskModalProps {
   controller: DashboardPageController
 }
 
-export const EditTaskModal: React.FC<EditTaskModalProps> = ({
+export const EditTaskModal: React.FC<EditTaskModalProps> = observer(({
   controller
 }) => {
   const isValid = controller.isEditTaskFormValid
@@ -104,4 +105,4 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+});

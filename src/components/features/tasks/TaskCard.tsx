@@ -3,7 +3,7 @@ import { Check, Edit2, Trash2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Task } from '../../../types';
+import { Task, TaskStatus } from '../../../types';
 import { formatDistanceToNow } from 'date-fns';
 import { DashboardPageController } from '@/controllers/page/DashboardPageController';
 import { toast } from '@/hooks/use-toast';
@@ -24,38 +24,38 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   };
 
   return (
-    <Card className={`task-card ${task.completed ? 'opacity-75' : ''}`}>
+    <Card className={`task-card ${(task.status == TaskStatus.COMPLETED) ? 'opacity-75' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1">
             <Button
               variant="ghost"
               size="sm"
-              className={`mt-1 h-6 w-6 p-0 rounded-full border-2 ${task.completed
-                  ? 'bg-success text-success-foreground border-success'
-                  : 'border-muted-foreground hover:border-primary'
+              className={`mt-1 h-6 w-6 p-0 rounded-full border-2 ${(task.status == TaskStatus.COMPLETED)
+                ? 'bg-success text-success-foreground border-success'
+                : 'border-muted-foreground hover:border-primary'
                 }`}
-              onClick={() => controller.toggleTaskStatus(task.id)}
+              onClick={() => controller.toggleTaskStatus(task)}
             >
-              {task.completed && <Check className="h-3 w-3" />}
+              {(task.status == TaskStatus.COMPLETED) && <Check className="h-3 w-3" />}
             </Button>
 
             <div className="flex-1 min-w-0">
-              <h3 className={`font-medium text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+              <h3 className={`font-medium text-sm ${(task.status == TaskStatus.COMPLETED) ? 'line-through text-muted-foreground' : 'text-foreground'
                 }`}>
                 {task.title}
               </h3>
 
               {task.description && (
-                <p className={`text-xs mt-1 ${task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'
+                <p className={`text-xs mt-1 ${(task.status == TaskStatus.COMPLETED) ? 'line-through text-muted-foreground' : 'text-muted-foreground'
                   }`}>
                   {task.description}
                 </p>
               )}
 
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={task.completed ? 'secondary' : 'outline'} className="text-xs">
-                  {task.completed ? 'Completed' : 'Pending'}
+                <Badge variant={(task.status == TaskStatus.COMPLETED) ? 'secondary' : 'outline'} className="text-xs">
+                  {(task.status == TaskStatus.COMPLETED) ? 'Completed' : 'Pending'}
                 </Badge>
 
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
