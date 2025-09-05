@@ -1,5 +1,5 @@
 class Api {
-    static BASE_URL = 'http://localhost:3000' //'https://ff417bb56617.ngrok-free.app' //
+    static BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000' //'https://ff417bb56617.ngrok-free.app' //
 
     static AUTH_SIGN_IN = '/api/auth/login'
     static AUTH_REGISTER = '/api/auth/register'
