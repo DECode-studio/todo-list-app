@@ -15,7 +15,7 @@ Aplikasi manajemen tugas (To-Do App) sederhana namun powerful yang membantu peng
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/username/todo-app.git
+   git clone https://github.com/DECode-studio/todo-list-app.git
    cd todo-app
    ```
 
